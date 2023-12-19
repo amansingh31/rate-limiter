@@ -1,0 +1,27 @@
+{
+  "name": "rate-limiter",
+  "version": "1.0.0",
+  "description": "A rate limiter library",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amansingh31/rate-limiter.git"
+  },
+  "author": "Aman Kr Singh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/amansingh31/rate-limiter/issues"
+  },
+  "homepage": "https://github.com/amansingh31/rate-limiter#readme",
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "ioredis": "^5.3.2",
+    "winston": "^3.11.0"
+  }
+}
