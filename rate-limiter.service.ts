@@ -7,11 +7,10 @@ export class RateLimiterService {
     private projectName: string;
     private windowSizeInSeconds: number;
     private logger = winston.createLogger({
-        level: 'info', // default log level
+        level: 'info',
         format: winston.format.json(),
         transports: [
             new winston.transports.Console(),
-            // add other transports like file, http, etc.
         ],
     })
     private projectConfig: ProjectDataConfig
@@ -34,36 +33,36 @@ export class RateLimiterService {
             return JSON.parse(projectData);
         }
         const initData = {
-            "generalLimit": 100,
-            "windowSizeInSeconds": 60,
-            "excludeIps": ["192.168.1.1", "192.168.1.2"],
-            "customLimits": [
+            blockDurationInSeconds: 300,
+            blockStrategy: 'temporary',
+            blockedIps: [
                 {
-                    "ip": "203.0.113.1",
-                    "limit": 200
+                    ip: '198.51.100.1',
+                    blockStartTime: '2023-12-20T12:00:00Z',
+                    blockDurationInSeconds: 600,
                 },
                 {
-                    "ip": "203.0.113.2",
-                    "limit": 50
-                }
+                    ip: '198.51.100.2',
+                    blockStartTime: '2023-12-20T13:00:00Z',
+                    blockDurationInSeconds: 1200,
+                },
             ],
-            "enableLogging": true,
-            "logLevel": "warning",
-            "blockStrategy": "temporary",
-            "blockDurationInSeconds": 300,
-            "blockedIps": [
+            customLimits: [
                 {
-                    "ip": "198.51.100.1",
-                    "blockStartTime": "2023-12-20T12:00:00Z",
-                    "blockDurationInSeconds": 600
+                    ip: '203.0.113.1',
+                    limit: 200,
                 },
                 {
-                    "ip": "198.51.100.2",
-                    "blockStartTime": "2023-12-20T13:00:00Z",
-                    "blockDurationInSeconds": 1200
-                }
+                    ip: '203.0.113.2',
+                    limit: 50,
+                },
             ],
-            "enableRateLimit": true,
+            enableLogging: true,
+            enableRateLimit: true,
+            excludeIps: ['192.168.1.1', '192.168.1.2'],
+            generalLimit: 100,
+            logLevel: 'warning',
+            windowSizeInSeconds: 60,
         }
         await this.redisClient.set(projectName, JSON.stringify(initData));
         return initData;
@@ -81,6 +80,7 @@ export class RateLimiterService {
                 this.logger.info(`Rate limiter skipped for ip ${tracker}`);
                 return true;
             }
+
             const limit = await this.getLimit(tracker);
 
             if (!limit) {
@@ -156,9 +156,16 @@ export interface ProjectDataConfig {
     blockStrategy: string;
     blockDurationInSeconds: number;
     enableRateLimit: boolean;
+    blockedIps: BlockIps[]
 }
 
 interface CustomLimit {
     ip: string;
     limit: number;
+}
+
+interface BlockIps{
+    ip: string,
+    blockStartTime: string,
+    blockDurationInSeconds: number
 }
