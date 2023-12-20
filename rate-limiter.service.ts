@@ -1,24 +1,19 @@
 import Redis from 'ioredis';
 import { getTracker } from './utils';
-import * as winston from 'winston';
 
 export class RateLimiterService {
     private redisClient: Redis;
     private projectName: string;
     private windowSizeInSeconds: number;
-    private logger = winston.createLogger({
-        level: 'info',
-        format: winston.format.json(),
-        transports: [
-            new winston.transports.Console(),
-        ],
-    })
+    private logger: any;
     private projectConfig: ProjectDataConfig
 
     constructor(config: RateLimiterConfig) {
         if (!config.projectName || !config.host || !config.port || !config.windowSizeInSeconds) {
             throw Error('Invalid configuration!');
         }
+        this.projectName = config.projectName;
+        this.logger = config.logger;
         this.redisClient = new Redis()
         this.getInitialProjectData(config.projectName).then((res) => {
             this.projectConfig = res;
@@ -144,6 +139,7 @@ export interface RateLimiterConfig {
     host: string;
     port: number;
     projectName: string;
+    logger: any;
 }
 
 export interface ProjectDataConfig {
